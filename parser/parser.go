@@ -1,6 +1,7 @@
 package parser
 
 import (
+	"fmt"
 	"jonathan/ast"
 	"jonathan/lexer"
 	"jonathan/token"
@@ -63,6 +64,8 @@ func (p *Parser) parseLetStatement() *ast.LetStatement {
 	for !p.curTokenIs(token.SEMICOLON) {
 		p.nextToken()
 	}
+	fmt.Printf("stmt: %+v\n", stmt)
+	fmt.Printf("name: %+v\n", *stmt.Name)
 	return stmt
 }
 
