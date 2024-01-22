@@ -1,6 +1,7 @@
 package parser
 
 import (
+	"fmt"
 	"jonathan/ast"
 	"jonathan/lexer"
 	"jonathan/token"
@@ -210,15 +211,32 @@ func TestParsingPrefixExpressions(t *testing.T) {
 			t.Fatalf("program.Statements[0] is not ast.ExpressionStatement. got=%T",
 				program.Statements[0])
 		}
-		//exp, ok := stmt.Expression.(*ast.PrefixExpression)
-		//if !ok {
-		//	t.Fatalf("stmt is not ast.PrefixExpression. got=%T", stmt.Expression)
-		//}
-		//if exp.Operator != tt.operator {
-		//	t.Fatalf("exp.Operator is not '%s'. got=%s", tt.operator, exp.Operator)
-		//}
-		//if !testIntegerLiteral(t, exp.Right, tt.integerValue) {
-		//	return
-		//}
+		exp, ok := stmt.Expression.(*ast.PrefixExpression)
+		if !ok {
+			t.Fatalf("stmt is not ast.PrefixExpression. got=%T", stmt.Expression)
+		}
+		if exp.Operator != tt.operator {
+			t.Fatalf("exp.Operator is not '%s'. got=%s", tt.operator, exp.Operator)
+		}
+		if !testIntegerLiteral(t, exp.Right, tt.integerValue) {
+			return
+		}
 	}
+}
+func testIntegerLiteral(t *testing.T, il ast.Expression, value int64) bool {
+	intnum, ok := il.(*ast.IntegerLiteral)
+	if !ok {
+		t.Errorf("il not *ast.IntegerLiteral. got=%T", il)
+		return false
+	}
+	if intnum.Value != value {
+		t.Errorf("integ.Value not %d. got=%d", value, intnum.Value)
+		return false
+	}
+	if intnum.TokenLiteral() != fmt.Sprintf("%d", value) {
+		t.Errorf("integ.TokenLiteral not %d. got=%s", value,
+			intnum.TokenLiteral())
+		return false
+	}
+	return true
 }

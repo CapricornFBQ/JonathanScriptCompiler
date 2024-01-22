@@ -8,6 +8,8 @@ import (
 	"strconv"
 )
 
+// level============================  level
+
 const (
 	_ int = iota
 	LOWEST
@@ -43,20 +45,20 @@ func New(l *lexer.Lexer) *Parser {
 	p.prefixParseFns = make(map[token.TokenType]prefixParseFn)
 	p.registerPrefix(token.IDENT, p.parseIdentifier)
 	p.registerPrefix(token.INT, p.parseIntegerLiteral)
+	p.registerPrefix(token.BANG, p.parsePrefixExpression)
+	p.registerPrefix(token.MINUS, p.parsePrefixExpression)
 	// read two token  set curToken and peekToken  why? TODO
 	p.nextToken()
 	p.nextToken()
 	return p
 }
 
-func (p *Parser) parseIdentifier() ast.Expression {
-	return &ast.Identifier{Token: p.curToken, Value: p.curToken.Literal}
-}
-
 func (p *Parser) nextToken() {
 	p.curToken = p.peekToken
 	p.peekToken = p.l.NextToken()
 }
+
+// start parse program
 
 func (p *Parser) ParseProgram() *ast.Program {
 	program := &ast.Program{}
@@ -70,6 +72,8 @@ func (p *Parser) ParseProgram() *ast.Program {
 	}
 	return program
 }
+
+//parseStatement and specific logic===============================================  parseStatement and specific logic
 
 func (p *Parser) parseStatement() ast.Statement {
 	switch p.curToken.Type {
@@ -113,6 +117,8 @@ func (p *Parser) parseReturnStatement() *ast.ReturnStatement {
 	return stmt
 }
 
+// parseExpression and specific logic===============================================  parseExpression and specific logic
+
 func (p *Parser) parseExpressionStatement() *ast.ExpressionStatement {
 	stmt := &ast.ExpressionStatement{Token: p.curToken}
 	stmt.Expression = p.parseExpression(LOWEST)
@@ -126,10 +132,20 @@ func (p *Parser) parseExpressionStatement() *ast.ExpressionStatement {
 func (p *Parser) parseExpression(precedence int) ast.Expression {
 	prefix := p.prefixParseFns[p.curToken.Type]
 	if prefix == nil {
+		p.noPrefixParseFnError(p.curToken.Type)
 		return nil
 	}
 	leftExp := prefix()
 	return leftExp
+}
+
+func (p *Parser) parseIdentifier() ast.Expression {
+	return &ast.Identifier{Token: p.curToken, Value: p.curToken.Literal}
+}
+
+func (p *Parser) noPrefixParseFnError(t token.TokenType) {
+	msg := fmt.Sprintf("no prefix parse function for %s found", t)
+	p.errors = append(p.errors, msg)
 }
 
 func (p *Parser) parseIntegerLiteral() ast.Expression {
@@ -144,6 +160,18 @@ func (p *Parser) parseIntegerLiteral() ast.Expression {
 	lit.Value = value
 	return lit
 }
+
+func (p *Parser) parsePrefixExpression() ast.Expression {
+	expression := &ast.PrefixExpression{
+		Token:    p.curToken,
+		Operator: p.curToken.Literal,
+	}
+	p.nextToken()
+	expression.Right = p.parseExpression(PREFIX)
+	return expression
+}
+
+// helper func ============================================================================================= helper fun
 
 func (p *Parser) curTokenIs(t token.TokenType) bool {
 	return p.curToken.Type == t

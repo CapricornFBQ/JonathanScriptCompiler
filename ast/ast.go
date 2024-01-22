@@ -5,21 +5,25 @@ import (
 	"jonathan/token"
 )
 
+// Node =========================================================================================================   Node
 type Node interface {
 	TokenLiteral() string
 	String() string
 }
 
+// Statement ==============================================================================================    Statement
 type Statement interface {
 	Node
 	statementNode()
 }
 
+// Expression =============================================================================================   Expression
 type Expression interface {
 	Node
 	expressionNode()
 }
 
+// Program ===============================================================================================       Program
 type Program struct {
 	Statements []Statement
 }
@@ -40,7 +44,7 @@ func (p *Program) String() string {
 	return out.String()
 }
 
-// Identifier Identifier
+// Identifier  ======================================================================================         Identifier
 type Identifier struct {
 	Token token.Token
 	Value string
@@ -57,7 +61,7 @@ func (i *Identifier) String() string {
 	return i.Value
 }
 
-// LetStatement letStatement
+// LetStatement  =====================================================================================      LetStatement
 type LetStatement struct {
 	Token token.Token // the token.LET token
 	Name  *Identifier
@@ -85,6 +89,7 @@ func (ls *LetStatement) String() string {
 	return out.String()
 }
 
+// ReturnStatement ==================================================================================   ReturnStatement
 type ReturnStatement struct {
 	Token       token.Token
 	ReturnValue Expression
@@ -104,6 +109,7 @@ func (rs *ReturnStatement) String() string {
 	return out.String()
 }
 
+// ExpressionStatement =========================================================================     ExpressionStatement
 type ExpressionStatement struct {
 	Token      token.Token // the first token of the expression
 	Expression Expression
@@ -121,6 +127,7 @@ func (es *ExpressionStatement) String() string {
 	return ""
 }
 
+// IntegerLiteral ===============================================================================        IntegerLiteral
 type IntegerLiteral struct {
 	Token token.Token
 	Value int64
@@ -129,3 +136,23 @@ type IntegerLiteral struct {
 func (il *IntegerLiteral) expressionNode()      {}
 func (il *IntegerLiteral) TokenLiteral() string { return il.Token.Literal }
 func (il *IntegerLiteral) String() string       { return il.Token.Literal }
+
+// PrefixExpression =============================================================================       PrefixExpression
+type PrefixExpression struct {
+	Token    token.Token // The prefix token, e.g. !
+	Operator string
+	Right    Expression
+}
+
+func (pe *PrefixExpression) expressionNode() {}
+func (pe *PrefixExpression) TokenLiteral() string {
+	return pe.Token.Literal
+}
+func (pe *PrefixExpression) String() string {
+	var out bytes.Buffer
+	out.WriteString("(")
+	out.WriteString(pe.Operator)
+	out.WriteString(pe.Right.String())
+	out.WriteString(")")
+	return out.String()
+}
