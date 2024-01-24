@@ -21,6 +21,17 @@ const (
 	CALL        // myFunction(X)
 )
 
+var precedences = map[token.TokenType]int{
+	token.EQ:       EQUALS,
+	token.NOT_EQ:   EQUALS,
+	token.LT:       LESSGREATER,
+	token.GT:       LESSGREATER,
+	token.PLUS:     SUM,
+	token.MINUS:    SUM,
+	token.SLASH:    PRODUCT,
+	token.ASTERISK: PRODUCT,
+}
+
 type (
 	prefixParseFn func() ast.Expression
 	infixParseFn  func(ast.Expression) ast.Expression
@@ -73,8 +84,7 @@ func (p *Parser) ParseProgram() *ast.Program {
 	return program
 }
 
-//parseStatement and specific logic===============================================  parseStatement and specific logic
-
+// parseStatement and specific logic===============================================  parseStatement and specific logic
 func (p *Parser) parseStatement() ast.Statement {
 	switch p.curToken.Type {
 	case token.LET:
@@ -118,7 +128,6 @@ func (p *Parser) parseReturnStatement() *ast.ReturnStatement {
 }
 
 // parseExpression and specific logic===============================================  parseExpression and specific logic
-
 func (p *Parser) parseExpressionStatement() *ast.ExpressionStatement {
 	stmt := &ast.ExpressionStatement{Token: p.curToken}
 	stmt.Expression = p.parseExpression(LOWEST)
@@ -171,7 +180,9 @@ func (p *Parser) parsePrefixExpression() ast.Expression {
 	return expression
 }
 
-// helper func ============================================================================================= helper fun
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+// helper func ============================================================================================ helper fun//
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 func (p *Parser) curTokenIs(t token.TokenType) bool {
 	return p.curToken.Type == t
@@ -193,6 +204,20 @@ func (p *Parser) expectPeek(t token.TokenType) bool {
 
 func (p *Parser) Errors() []string {
 	return p.errors
+}
+
+func (p *Parser) peekPrecedence() int {
+	if pre, ok := precedences[p.peekToken.Type]; ok {
+		return pre
+	}
+	return LOWEST
+}
+
+func (p *Parser) curPrecedence() int {
+	if pre, ok := precedences[p.curToken.Type]; ok {
+		return pre
+	}
+	return LOWEST
 }
 
 func (p *Parser) peekError(t token.TokenType) {
