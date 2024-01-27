@@ -79,8 +79,7 @@ func (p *Parser) nextToken() {
 	p.peekToken = p.l.NextToken()
 }
 
-// start parse program
-
+// ParseProgram start parse program===============================================  start parse program
 func (p *Parser) ParseProgram() *ast.Program {
 	program := &ast.Program{}
 	program.Statements = []ast.Statement{}
@@ -162,7 +161,7 @@ func (p *Parser) parseExpression(precedence int) ast.Expression {
 			return leftExp
 		}
 		p.nextToken()
-		leftExp = infix(leftExp) // pass the left operand into the infixparsefunction then get the operator and right operand
+		leftExp = infix(leftExp) // pass the left operand into the infix parse function then get the operator and right operand
 	}
 
 	return leftExp
