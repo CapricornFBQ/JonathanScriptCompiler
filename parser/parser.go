@@ -138,6 +138,7 @@ func (p *Parser) parseReturnStatement() *ast.ReturnStatement {
 
 // parseExpression and specific logic===============================================  parseExpression and specific logic
 func (p *Parser) parseExpressionStatement() *ast.ExpressionStatement {
+	defer untrace(trace("parseExpressionStatement"))
 	stmt := &ast.ExpressionStatement{Token: p.curToken}
 	stmt.Expression = p.parseExpression(LOWEST)
 	if p.peekTokenIs(token.SEMICOLON) {
@@ -148,6 +149,7 @@ func (p *Parser) parseExpressionStatement() *ast.ExpressionStatement {
 }
 
 func (p *Parser) parseExpression(precedence int) ast.Expression {
+	defer untrace(trace("parseExpression"))
 	prefix := p.prefixParseFns[p.curToken.Type]
 	if prefix == nil {
 		p.noPrefixParseFnError(p.curToken.Type)
@@ -160,14 +162,16 @@ func (p *Parser) parseExpression(precedence int) ast.Expression {
 		if infix == nil {
 			return leftExp
 		}
-		p.nextToken()
+		// infix function return a expression node
 		leftExp = infix(leftExp) // pass the left operand into the infix parse function then get the operator and right operand
+		//The leftExp === A tree-like data structure is formed through recursion
 	}
 
 	return leftExp
 }
 
 func (p *Parser) parseIdentifier() ast.Expression {
+	defer untrace(trace("parseIdentifier"))
 	return &ast.Identifier{Token: p.curToken, Value: p.curToken.Literal}
 }
 
@@ -177,6 +181,7 @@ func (p *Parser) noPrefixParseFnError(t token.TokenType) {
 }
 
 func (p *Parser) parseIntegerLiteral() ast.Expression {
+	defer untrace(trace("parseIntegerLiteral"))
 	lit := &ast.IntegerLiteral{Token: p.curToken}
 
 	value, err := strconv.ParseInt(p.curToken.Literal, 0, 64)
@@ -190,6 +195,8 @@ func (p *Parser) parseIntegerLiteral() ast.Expression {
 }
 
 func (p *Parser) parsePrefixExpression() ast.Expression {
+	defer untrace(trace("parsePrefixExpression"))
+	// curToken should be a operator
 	expression := &ast.PrefixExpression{
 		Token:    p.curToken,
 		Operator: p.curToken.Literal,
@@ -199,6 +206,10 @@ func (p *Parser) parsePrefixExpression() ast.Expression {
 	return expression
 }
 func (p *Parser) parseInfixExpression(left ast.Expression) ast.Expression {
+	defer untrace(trace("parseInfixExpression"))
+	// curToken is the left node
+	p.nextToken()
+	// curToken should be a infix operator
 	expression := &ast.InfixExpression{
 		Token:    p.curToken,
 		Operator: p.curToken.Literal,
