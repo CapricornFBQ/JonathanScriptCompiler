@@ -109,7 +109,7 @@ func (rs *ReturnStatement) String() string {
 	return out.String()
 }
 
-// ExpressionStatement =========================================================================     ExpressionStatement
+// ExpressionStatement ============================================================================= ExpressionStatement
 type ExpressionStatement struct {
 	Token      token.Token // the first token of the expression
 	Expression Expression
@@ -127,7 +127,7 @@ func (es *ExpressionStatement) String() string {
 	return ""
 }
 
-// IntegerLiteral ===============================================================================        IntegerLiteral
+// IntegerLiteral =====================================================================================   IntegerLiteral
 type IntegerLiteral struct {
 	Token token.Token
 	Value int64
@@ -137,7 +137,7 @@ func (il *IntegerLiteral) expressionNode()      {}
 func (il *IntegerLiteral) TokenLiteral() string { return il.Token.Literal }
 func (il *IntegerLiteral) String() string       { return il.Token.Literal }
 
-// PrefixExpression =============================================================================       PrefixExpression
+// PrefixExpression ==================================================================================  PrefixExpression
 type PrefixExpression struct {
 	Token    token.Token // The prefix token, e.g. !
 	Operator string
@@ -157,7 +157,7 @@ func (pe *PrefixExpression) String() string {
 	return out.String()
 }
 
-// InfixExpression =============================================================================         InfixExpression
+// InfixExpression =================================================================================     InfixExpression
 type InfixExpression struct {
 	Token    token.Token // The operator token, e.g. +
 	Left     Expression
@@ -176,3 +176,13 @@ func (oe *InfixExpression) String() string {
 	out.WriteString(")")
 	return out.String()
 }
+
+// Boolean ================================================================================================      Boolean
+type Boolean struct {
+	Token token.Token
+	Value bool
+}
+
+func (b *Boolean) expressionNode()      {}
+func (b *Boolean) TokenLiteral() string { return b.Token.Literal }
+func (b *Boolean) String() string       { return b.Token.Literal }

@@ -2,7 +2,6 @@ package parser
 
 import (
 	"log"
-	"math/rand"
 	"runtime"
 	"strings"
 	"time"
@@ -30,10 +29,11 @@ func trace(funcName string) (string, int, time.Time, int) {
 		}
 		depth = n - globalStartPc
 		// random
-		colorIndex := rand.Intn(8)
+		//colorIndex := rand.Intn(8)
+		var colorIndex = depth % 8
 		// indent
 		indent := strings.Repeat("  ", depth*2)
-		log.Printf("%s%s start: %s %s", colorList[colorIndex%3], indent, funcName, colorReset)
+		log.Printf("%s%s start: %s %s", colorList[colorIndex], indent, funcName, colorReset)
 		return funcName, depth, start, colorIndex
 	}
 	return funcName, 0, start, 0
@@ -42,5 +42,5 @@ func trace(funcName string) (string, int, time.Time, int) {
 // untrace print info
 func untrace(funcName string, depth int, start time.Time, colorIndex int) {
 	indent := strings.Repeat("  ", depth*2)
-	log.Printf("%s%s end  : %s，duration: %s %s", colorList[colorIndex%3], indent, funcName, time.Since(start), colorReset)
+	log.Printf("%s%s end  : %s，duration: %s %s", colorList[colorIndex], indent, funcName, time.Since(start), colorReset)
 }
