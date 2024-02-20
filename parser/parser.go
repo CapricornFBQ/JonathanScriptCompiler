@@ -170,6 +170,8 @@ func (p *Parser) parseExpression(precedence int) ast.Expression {
 		if infix == nil {
 			return leftExp
 		}
+		// curToken is the left node
+		p.nextToken()
 		// infix function return a expression node
 		leftExp = infix(leftExp) // pass the left operand into the infix parse function then get the operator and right operand
 		//The leftExp === A tree-like data structure is formed through recursion
@@ -230,8 +232,6 @@ func (p *Parser) parsePrefixExpression() ast.Expression {
 }
 func (p *Parser) parseInfixExpression(left ast.Expression) ast.Expression {
 	defer untrace(trace("parseInfixExpression"))
-	// curToken is the left node
-	p.nextToken()
 	// curToken should be a infix operator
 	expression := &ast.InfixExpression{
 		Token:    p.curToken,
