@@ -5,6 +5,7 @@ import (
 	"jonathan/ast"
 	"jonathan/lexer"
 	"jonathan/token"
+	"log"
 	"strconv"
 )
 
@@ -118,10 +119,12 @@ func (p *Parser) parseLetStatement() *ast.LetStatement {
 	defer untrace(trace("parseLetStatement", p.curToken.Literal))
 	stmt := &ast.LetStatement{Token: p.curToken}
 	if !p.expectPeek(token.IDENT) {
+		p.printNilInfo()
 		return nil
 	}
 	stmt.Name = &ast.Identifier{Token: p.curToken, Value: p.curToken.Literal}
 	if !p.expectPeek(token.ASSIGN) {
+		p.printNilInfo()
 		return nil
 	}
 
@@ -163,6 +166,7 @@ func (p *Parser) parseExpression(precedence int) ast.Expression {
 	prefix := p.prefixParseFns[p.curToken.Type]
 	if prefix == nil {
 		p.noPrefixParseFnError(p.curToken.Type)
+		p.printNilInfo()
 		return nil
 	}
 	leftExp := prefix()
@@ -226,6 +230,7 @@ func (p *Parser) parseIntegerLiteral() ast.Expression {
 	if err != nil {
 		msg := fmt.Sprintf("could not parse %q as integer", p.curToken.Literal)
 		p.errors = append(p.errors, msg)
+		p.printNilInfo()
 		return nil
 	}
 	lit.Value = value
@@ -241,6 +246,7 @@ func (p *Parser) parseGroupedExpression() ast.Expression {
 	p.nextToken()
 	exp := p.parseExpression(LOWEST)
 	if !p.expectPeek(token.RPAREN) {
+		p.printNilInfo()
 		return nil
 	}
 	return exp
@@ -263,20 +269,24 @@ func (p *Parser) parseBlockStatement() *ast.BlockStatement {
 func (p *Parser) parseIfExpression() ast.Expression {
 	expression := &ast.IfExpression{Token: p.curToken}
 	if !p.expectPeek(token.LPAREN) {
+		p.printNilInfo()
 		return nil
 	}
 	p.nextToken()
 	expression.Condition = p.parseExpression(LOWEST)
 	if !p.expectPeek(token.RPAREN) {
+		p.printNilInfo()
 		return nil
 	}
 	if !p.expectPeek(token.LBRACE) {
+		p.printNilInfo()
 		return nil
 	}
 	expression.Consequence = p.parseBlockStatement()
 	if p.peekTokenIs(token.ELSE) {
 		p.nextToken()
 		if !p.expectPeek(token.LBRACE) {
+			p.printNilInfo()
 			return nil
 		}
 		expression.Alternative = p.parseBlockStatement()
@@ -300,6 +310,7 @@ func (p *Parser) parseFunctionParameters() []*ast.Identifier {
 		identifiers = append(identifiers, ident)
 	}
 	if !p.expectPeek(token.RPAREN) {
+		p.printNilInfo()
 		return nil
 	}
 	return identifiers
@@ -308,10 +319,12 @@ func (p *Parser) parseFunctionParameters() []*ast.Identifier {
 func (p *Parser) parseFunctionLiteral() ast.Expression {
 	lit := &ast.FunctionLiteral{Token: p.curToken}
 	if !p.expectPeek(token.LPAREN) {
+		p.printNilInfo()
 		return nil
 	}
 	lit.Parameters = p.parseFunctionParameters()
 	if !p.expectPeek(token.LBRACE) {
+		p.printNilInfo()
 		return nil
 	}
 	lit.Body = p.parseBlockStatement()
@@ -370,4 +383,8 @@ func (p *Parser) registerPrefix(tokenType token.TokenType, fn prefixParseFn) {
 
 func (p *Parser) registerInfix(tokenType token.TokenType, fn infixParseFn) {
 	p.infixParseFns[tokenType] = fn
+}
+
+func (p *Parser) printNilInfo() {
+	log.Printf("current literal: [ %s ] , next literal: [ %s ]", p.curToken.Literal, p.peekToken.Literal)
 }
