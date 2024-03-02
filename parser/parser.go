@@ -40,11 +40,11 @@ type (
 )
 
 type Parser struct {
-	l                     *lexer.Lexer
-	errors                []string
-	curToken              token.Token
-	peekToken             token.Token
-	currentPasedStatemnts []ast.Statement // used in printer
+	l                       *lexer.Lexer
+	errors                  []string
+	curToken                token.Token
+	peekToken               token.Token
+	currentParsedStatements []ast.Statement // used in printer
 
 	prefixParseFns map[token.Type]prefixParseFn
 	infixParseFns  map[token.Type]infixParseFn
@@ -100,7 +100,7 @@ func (p *Parser) ParseProgram() *ast.Program {
 		stmt := p.parseStatement()
 		if stmt != nil {
 			program.Statements = append(program.Statements, stmt)
-			p.currentPasedStatemnts = append(p.currentPasedStatemnts, stmt)
+			p.currentParsedStatements = append(p.currentParsedStatements, stmt)
 		}
 		p.nextToken()
 	}
