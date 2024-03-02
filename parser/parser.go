@@ -92,7 +92,8 @@ func (p *Parser) nextToken() {
 func (p *Parser) ParseProgram() *ast.Program {
 	program := &ast.Program{}
 	program.Statements = []ast.Statement{}
-	// the biggest loop. if parse statement return nil , the loop continue
+	// the biggest loop. if parse statement return nil , the loop continue.
+	// the statements is a slice ,include all the statements parsed in the program
 	for !p.curTokenIs(token.EOF) {
 		stmt := p.parseStatement()
 		if stmt != nil {
