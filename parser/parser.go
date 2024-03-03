@@ -133,8 +133,8 @@ func (p *Parser) parseLetStatement() *ast.LetStatement {
 		return nil
 	}
 
-	// TODO: we skip the expressions until we encounter a semicolon
-	for !p.curTokenIs(token.SEMICOLON) {
+	stmt.Value = p.parseExpression(LOWEST)
+	if p.peekTokenIs(token.SEMICOLON) {
 		p.nextToken()
 	}
 	fmt.Printf("stmt: %+v\n", stmt)
@@ -146,7 +146,7 @@ func (p *Parser) parseReturnStatement() *ast.ReturnStatement {
 	defer untrace(trace("parseReturnStatement", p))
 	stmt := &ast.ReturnStatement{Token: p.curToken}
 	p.nextToken()
-
+	stmt.ReturnValue = p.parseExpression(LOWEST)
 	for !p.curTokenIs(token.SEMICOLON) {
 		p.nextToken()
 	}

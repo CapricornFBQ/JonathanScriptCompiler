@@ -47,7 +47,7 @@ func untrace(funcName string, depth int, start time.Time, colorIndex int, parser
 	indent := strings.Repeat("  ", depth*2)
 	log.Printf("%s%s end  :[ %s ], current token literal:[ %s ] ，duration:[ %s ] %s",
 		colorList[colorIndex], indent, funcName, parser.curToken.Literal, time.Since(start), colorReset)
-	PrintStatments(parser.currentPasedStatemnts)
+	PrintStatments(parser.currentParsedStatements)
 }
 
 // PrintStatments
