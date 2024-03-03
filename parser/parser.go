@@ -6,6 +6,7 @@ import (
 	"jonathan/lexer"
 	"jonathan/token"
 	"log"
+	"reflect"
 	"strconv"
 )
 
@@ -97,10 +98,13 @@ func (p *Parser) ParseProgram() *ast.Program {
 	// the biggest loop. if parse statement return nil , the loop continue.
 	// the statements is a slice ,include all the statements parsed in the program
 	for !p.curTokenIs(token.EOF) {
-		stmt := p.parseStatement()
-		if stmt != nil {
-			program.Statements = append(program.Statements, stmt)
-			p.currentParsedStatements = append(p.currentParsedStatements, stmt)
+		stmt := p.parseStatement() // the ast.Statement is implemented in pointer type ,so we have to assign it with pointer!
+		if pointerValue, ok := stmt.(ast.Statement); ok {
+			// use the reflect to check nil
+			if !reflect.ValueOf(pointerValue).IsNil() {
+				program.Statements = append(program.Statements, pointerValue)
+				p.currentParsedStatements = append(p.currentParsedStatements, pointerValue)
+			}
 		}
 		p.nextToken()
 	}

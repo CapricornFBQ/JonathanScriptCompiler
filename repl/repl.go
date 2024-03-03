@@ -53,8 +53,17 @@ func Start(in io.Reader, out io.Writer) {
 }
 
 func printParserErrors(out io.Writer, errors []string) {
+	writeString, err := io.WriteString(out, " parser errors:\n")
+	if err != nil {
+		fmt.Println("error writing string:", err)
+		return
+	}
+	if writeString != len("\n") {
+		fmt.Println("not all bytes written")
+		return
+	}
 	for _, msg := range errors {
-		writeString, err := io.WriteString(out, "\t"+msg+"\n")
+		writeString, err = io.WriteString(out, "\t"+msg+"\n")
 		if err != nil {
 			fmt.Println("error writing string:", err)
 			return

@@ -61,6 +61,9 @@ func PrintStatements(statements []ast.Statement) {
 		for i := 0; i < levelLength; i++ {
 			// 从队列中取出当前节点
 			current := statements[0]
+			if current == nil {
+				continue
+			}
 			statements = statements[1:]
 			// 打印当前节点的值
 			fmt.Print(current.TokenLiteral(), ",")
