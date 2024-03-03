@@ -42,16 +42,15 @@ func trace(funcName string, parser *Parser) (string, int, time.Time, int, *Parse
 	return funcName, 0, start, 0, parser
 }
 
-// untrace print info
-func untrace(funcName string, depth int, start time.Time, colorIndex int, parser *Parser) {
+// trace print info
+func unTrace(funcName string, depth int, start time.Time, colorIndex int, parser *Parser) {
 	indent := strings.Repeat("  ", depth*2)
 	log.Printf("%s%s end  :[ %s ], current token literal:[ %s ] ，duration:[ %s ] %s",
 		colorList[colorIndex], indent, funcName, parser.curToken.Literal, time.Since(start), colorReset)
-	PrintStatments(parser.currentParsedStatements)
+	PrintStatements(parser.currentParsedStatements)
 }
 
-// PrintStatments
-func PrintStatments(statements []ast.Statement) {
+func PrintStatements(statements []ast.Statement) {
 	if len(statements) == 0 {
 		fmt.Println("<<<<<<<<<<<<<<<<<< nil >>>>>>>>>>>>>>>>>>")
 		return
