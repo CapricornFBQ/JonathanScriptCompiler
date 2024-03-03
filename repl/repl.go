@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"io"
 	"jonathan/lexer"
-	"jonathan/token"
+	"jonathan/parser"
 )
 
 const PROMPT = ">>"
@@ -22,8 +22,46 @@ func Start(in io.Reader, out io.Writer) {
 
 		line := scanner.Text()
 		l := lexer.NewLexer(line)
-		for tok := l.NextToken(); tok.Type != token.EOF; tok = l.NextToken() {
-			fmt.Printf("%+v\n", tok)
+		p := parser.NewParser(l)
+
+		program := p.ParseProgram()
+
+		if len(p.Errors()) != 0 {
+			printParserErrors(out, p.Errors())
+			continue
+		}
+		writeString, err := io.WriteString(out, program.String())
+		if err != nil {
+			fmt.Println("error writing string:", err)
+			return
+		}
+		if writeString != len(program.String()) {
+			fmt.Println("not all bytes written")
+			return
+		}
+
+		writeString, err = io.WriteString(out, "\n")
+		if err != nil {
+			fmt.Println("error writing string:", err)
+			return
+		}
+		if writeString != len("\n") {
+			fmt.Println("not all bytes written")
+			return
+		}
+	}
+}
+
+func printParserErrors(out io.Writer, errors []string) {
+	for _, msg := range errors {
+		writeString, err := io.WriteString(out, "\t"+msg+"\n")
+		if err != nil {
+			fmt.Println("error writing string:", err)
+			return
+		}
+		if writeString != len("\n") {
+			fmt.Println("not all bytes written")
+			return
 		}
 	}
 }
