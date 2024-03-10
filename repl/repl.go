@@ -4,6 +4,7 @@ import (
 	"bufio"
 	"fmt"
 	"io"
+	"jonathan/evaluator"
 	"jonathan/lexer"
 	"jonathan/parser"
 )
@@ -30,24 +31,27 @@ func Start(in io.Reader, out io.Writer) {
 			printParserErrors(out, p.Errors())
 			continue
 		}
-		writeString, err := io.WriteString(out, program.String())
-		if err != nil {
-			fmt.Println("error writing string:", err)
-			return
-		}
-		if writeString != len(program.String()) {
-			fmt.Println("not all bytes written")
-			return
-		}
 
-		writeString, err = io.WriteString(out, "\n")
-		if err != nil {
-			fmt.Println("error writing string:", err)
-			return
-		}
-		if writeString != len("\n") {
-			fmt.Println("not all bytes written")
-			return
+		evaluated := evaluator.Eval(program)
+		if evaluated != nil {
+			writeString, err := io.WriteString(out, evaluated.Inspect())
+			if err != nil {
+				fmt.Println("error writing string:", err)
+				return
+			}
+			if writeString != len(program.String()) {
+				fmt.Println("not all bytes written")
+				return
+			}
+			writeString, err = io.WriteString(out, "\n")
+			if err != nil {
+				fmt.Println("error writing string:", err)
+				return
+			}
+			if writeString != len("\n") {
+				fmt.Println("not all bytes written")
+				return
+			}
 		}
 	}
 }
