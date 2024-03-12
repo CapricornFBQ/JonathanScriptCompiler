@@ -13,7 +13,9 @@ func TestEvalIntegerExpression(t *testing.T) {
 		expected int64
 	}{
 		{"5", 5},
-		{"10", 10}}
+		{"10", 10},
+		{"-5", -5},
+		{"-10", -10}}
 	for _, tt := range tests {
 		evaluated := testEval(tt.input)
 		testIntegerObject(t, evaluated, tt.expected)
