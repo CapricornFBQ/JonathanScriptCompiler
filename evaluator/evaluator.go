@@ -21,7 +21,7 @@ func Eval(node ast.Node) object.Object {
 	switch node := node.(type) {
 	// Statements
 	case *ast.Program:
-		return evalStatements(node.Statements)
+		return evalProgram(node.Statements)
 	case *ast.ExpressionStatement:
 		return Eval(node.Expression)
 	case *ast.IntegerLiteral:
@@ -36,7 +36,7 @@ func Eval(node ast.Node) object.Object {
 		right := Eval(node.Right)
 		return evalInfixExpression(node.Operator, left, right)
 	case *ast.BlockStatement:
-		return evalStatements(node.Statements)
+		return evalBlockStatement(node)
 	case *ast.IfExpression:
 		return evalIfExpression(node)
 	case *ast.ReturnStatement:
@@ -54,11 +54,12 @@ func Eval(node ast.Node) object.Object {
 	return nil
 }
 
-func evalStatements(stmts []ast.Statement) object.Object {
+func evalProgram(stmts []ast.Statement) object.Object {
 	var result object.Object
 	for _, statement := range stmts {
 		result = Eval(statement)
 
+		// return unwrap value
 		if returnValue, ok := result.(*object.ReturnValue); ok {
 			return returnValue.Value
 		}
@@ -158,4 +159,16 @@ func isTruthy(obj object.Object) bool {
 	default:
 		return true
 	}
+}
+
+func evalBlockStatement(block *ast.BlockStatement) object.Object {
+	var result object.Object
+	for _, statement := range block.Statements {
+		result = Eval(statement)
+		// the nested return can be tracked in outer recursion call
+		if result != nil && result.Type() == object.ReturnValueObj {
+			return result
+		}
+	}
+	return result
 }
