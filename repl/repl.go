@@ -6,6 +6,7 @@ import (
 	"io"
 	"jonathan/evaluator"
 	"jonathan/lexer"
+	"jonathan/object"
 	"jonathan/parser"
 )
 
@@ -20,7 +21,7 @@ func Start(in io.Reader, out io.Writer) {
 		if !scanned {
 			return
 		}
-
+		env := object.NewEnvironment()
 		line := scanner.Text()
 		l := lexer.NewLexer(line)
 		p := parser.NewParser(l)
@@ -32,7 +33,7 @@ func Start(in io.Reader, out io.Writer) {
 			continue
 		}
 
-		evaluated := evaluator.Eval(program)
+		evaluated := evaluator.Eval(program, env)
 		if evaluated != nil {
 			writeString, err := io.WriteString(out, evaluated.Inspect())
 			if err != nil {
