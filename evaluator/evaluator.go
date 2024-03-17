@@ -1,6 +1,7 @@
 package evaluator
 
 import (
+	"fmt"
 	"jonathan/ast"
 	"jonathan/object"
 )
@@ -59,9 +60,12 @@ func evalProgram(stmts []ast.Statement) object.Object {
 	for _, statement := range stmts {
 		result = Eval(statement)
 
-		// return unwrap value
-		if returnValue, ok := result.(*object.ReturnValue); ok {
-			return returnValue.Value
+		// return wrap value  when return statement or Error stop evaluator
+		switch result := result.(type) {
+		case *object.ReturnValue:
+			return result.Value
+		case *object.Error:
+			return result
 		}
 	}
 	return result
@@ -74,7 +78,7 @@ func evalPrefixExpression(operator string, right object.Object) object.Object {
 	case "-":
 		return evalMinusPrefixOperatorExpression(right)
 	default:
-		return NULL
+		return newError("unknown operator: %s%s", operator, right.Type())
 	}
 }
 
@@ -93,7 +97,7 @@ func evalBangOperatorExpression(right object.Object) object.Object {
 
 func evalMinusPrefixOperatorExpression(right object.Object) object.Object {
 	if right.Type() != object.IntegerObj {
-		return NULL
+		return newError("unknown operator: -%s", right.Type())
 	}
 	value := right.(*object.Integer).Value
 	return &object.Integer{Value: -value}
@@ -107,8 +111,11 @@ func evalInfixExpression(operator string, left, right object.Object) object.Obje
 		return nativeBoolToBooleanObject(left == right)
 	case operator == "!=":
 		return nativeBoolToBooleanObject(left != right)
+	case left.Type() != right.Type():
+		return newError("type mismatch: %s %s %s",
+			left.Type(), operator, right.Type())
 	default:
-		return NULL
+		return newError("unknown operator: %s %s %s", left.Type(), operator, right.Type())
 	}
 }
 
@@ -135,7 +142,8 @@ func evalIntegerInfixExpression(operator string,
 	case "!=":
 		return nativeBoolToBooleanObject(leftVal != rightVal)
 	default:
-		return NULL
+		return newError("unknown operator: %s %s %s",
+			left.Type(), operator, right.Type())
 	}
 }
 func evalIfExpression(ie *ast.IfExpression) object.Object {
@@ -166,9 +174,16 @@ func evalBlockStatement(block *ast.BlockStatement) object.Object {
 	for _, statement := range block.Statements {
 		result = Eval(statement)
 		// the nested return can be tracked in outer recursion call
-		if result != nil && result.Type() == object.ReturnValueObj {
-			return result
+		if result != nil {
+			rt := result.Type() // when the type of result is return or Error ,stop evaluator
+			if rt == object.ReturnValueObj || rt == object.ErrorObj {
+				return result
+			}
 		}
 	}
 	return result
+}
+
+func newError(format string, a ...interface{}) *object.Error {
+	return &object.Error{Message: fmt.Sprintf(format, a...)}
 }
