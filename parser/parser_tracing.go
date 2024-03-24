@@ -50,14 +50,20 @@ func unTrace(funcName string, depth int, start time.Time, colorIndex int, parser
 	PrintStatements(parser.currentParsedStatements)
 }
 
+var gStatesNum = 0
+
 func PrintStatements(statements []ast.Statement) {
+	if gStatesNum == len(statements) {
+		return
+	}
+	gStatesNum = len(statements)
 	if len(statements) == 0 {
-		fmt.Println("<<<<<<<<<<<<<<<<<< nil >>>>>>>>>>>>>>>>>>")
+		fmt.Println("statements is nil")
 		return
 	}
 	for len(statements) > 0 {
 		levelLength := len(statements)
-		fmt.Print("<<<<<<<<<<<<<<<<<<")
+		fmt.Print("!!! parsed statements: [ ")
 		for i := 0; i < levelLength; i++ {
 			// 从队列中取出当前节点
 			current := statements[0]
@@ -74,6 +80,6 @@ func PrintStatements(statements []ast.Statement) {
 			//}
 		}
 		// 每打印完一层后换行
-		fmt.Println(">>>>>>>>>>>>>>>>>>")
+		fmt.Println(" ]")
 	}
 }
