@@ -170,6 +170,22 @@ func (p *Parser) parseExpressionStatement() *ast.ExpressionStatement {
 	return stmt
 }
 
+//!!! Note: Prioritize high priority (deal with the next expression). [equal to：precedence < p.peekPrecedence() return true]
+//If break , it will return left Exp, that mean
+//"parseInfixExpression function - expression.Right" will get a result (deal with the current expression)[equal to：precedence < p.peekPrecedence() return fasle]
+// parseExpression,parsePrefixExpression and parseInfixExpression constitutes complete recursion.
+// Character expressions：2*3+4+5-6*7
+// expression node result：
+// 			-
+//		  /   \
+//		 +     *
+//		/ \   / \
+//	   +   5 6   7
+//	  / \
+//	 *   4
+//	/ \
+// 2   3
+
 func (p *Parser) parseExpression(precedence int) ast.Expression {
 	defer unTrace(trace("parseExpression", p))
 	prefix := p.prefixParseFns[p.curToken.Type]
