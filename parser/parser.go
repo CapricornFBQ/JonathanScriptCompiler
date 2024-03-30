@@ -170,21 +170,37 @@ func (p *Parser) parseExpressionStatement() *ast.ExpressionStatement {
 	return stmt
 }
 
-//!!! Note: Prioritize high priority (deal with the next expression). [equal to：precedence < p.peekPrecedence() return true]
-//If break , it will return left Exp, that mean
-//"parseInfixExpression function - expression.Right" will get a result (deal with the current expression)[equal to：precedence < p.peekPrecedence() return fasle]
+// !!! Note: Prioritize high priority (deal with the next expression). [equal to：precedence < p.peekPrecedence() return true]
+// If break , it will return left Exp, that mean
+// "parseInfixExpression function - expression.Right" will get a result (deal with the current expression)[equal to：precedence < p.peekPrecedence() return false]
 // parseExpression,parsePrefixExpression and parseInfixExpression constitutes complete recursion.
+// The result of the parseInfixExpression function serves as the left child node in the subsequent infix expression tree.
+// The result of the parseExpression function becomes the right child of the right subtree within a PrefixExpression in the AST.
 // Character expressions：2*3+4+5-6*7
 // expression node result：
-// 			-
-//		  /   \
-//		 +     *
-//		/ \   / \
-//	   +   5 6   7
-//	  / \
-//	 *   4
-//	/ \
+//
+//          -
+//        /   \
+//       +     *
+//      / \   / \
+//     +   5 6   7
+//    / \
+//   *   4
+//  / \
 // 2   3
+
+// Character expressions：a + b * c + d / e - f
+// expression node result：
+//
+//         -
+//        / \
+//       +   f
+//      / \
+//     +   /
+//    / \ / \
+//   a  * d  e
+//     / \
+//    b   c
 
 func (p *Parser) parseExpression(precedence int) ast.Expression {
 	defer unTrace(trace("parseExpression", p))
@@ -206,6 +222,7 @@ func (p *Parser) parseExpression(precedence int) ast.Expression {
 		// infix function return a expression node
 		leftExp = infix(leftExp) // pass the left operand into the infix parse function then get the operator and right operand
 		//The leftExp === A tree-like data structure is formed through recursion
+
 	}
 
 	return leftExp
