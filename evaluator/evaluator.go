@@ -265,7 +265,7 @@ func applyFunction(fn object.Object, args []object.Object) object.Object {
 }
 func extendFunctionEnv(fn *object.Function, args []object.Object,
 ) *object.Environment {
-	env := object.NewEnclosedEnvironment(fn.Env)
+	env := object.NewEnclosedEnvironment(fn.Env) // the fn.Evn it the outer. It's a linked list.
 	for paramIdx, param := range fn.Parameters {
 		env.Set(param.Value, args[paramIdx])
 	}
