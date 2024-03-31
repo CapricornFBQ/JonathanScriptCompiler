@@ -14,14 +14,13 @@ const PROMPT = ">>"
 
 func Start(in io.Reader, out io.Writer) {
 	scanner := bufio.NewScanner(in)
-
+	env := object.NewEnvironment() // the root env
 	for {
 		fmt.Printf(PROMPT)
 		scanned := scanner.Scan()
 		if !scanned {
 			return
 		}
-		env := object.NewEnvironment()
 		line := scanner.Text()
 		l := lexer.NewLexer(line)
 		p := parser.NewParser(l)
@@ -40,7 +39,7 @@ func Start(in io.Reader, out io.Writer) {
 				fmt.Println("error writing string:", err)
 				return
 			}
-			if writeString != len(program.String()) {
+			if writeString != len(evaluated.Inspect()) {
 				fmt.Println("not all bytes written")
 				return
 			}
