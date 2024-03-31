@@ -7,21 +7,6 @@ import (
 
 // the lexer get the  result from the source code,then compare to the user result
 func TestNextToken(t *testing.T) {
-	//input := `=+(){},;`
-	//
-	//tests := []struct {
-	//	expectedType    token.TokenType
-	//	expectedLiteral string
-	//}{{token.ASSIGN, "="},
-	//	{token.PLUS, "+"},
-	//	{token.LPAREN, "("},
-	//	{token.RPAREN, ")"},
-	//	{token.LBRACE, "{"},
-	//	{token.RBRACE, "}"},
-	//	{token.COMMA, ","},
-	//	{token.SEMICOLON, ";"},
-	//	{token.EOF, ""}}
-
 	input := `let five = 5;
 			let ten = 10;
 			let add = fn(x, y) {
@@ -38,8 +23,9 @@ func TestNextToken(t *testing.T) {
 			}
 			10 == 10; 
 			10 != 9;
-   "foobar"
-   "foo bar"
+   			"foobar"
+   			"foo bar"
+			[1, 2];
 			`
 	tests := []struct {
 		expectedType    token.Type
@@ -122,6 +108,12 @@ func TestNextToken(t *testing.T) {
 		{token.SEMICOLON, ";"},
 		{token.STRING, "foobar"},
 		{token.STRING, "foo bar"},
+		{token.LBRACKET, "["},
+		{token.INT, "1"},
+		{token.COMMA, ","},
+		{token.INT, "2"},
+		{token.RBRACKET, "]"},
+		{token.SEMICOLON, ";"},
 		{token.EOF, ""},
 	}
 
