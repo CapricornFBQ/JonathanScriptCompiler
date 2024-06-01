@@ -1,2 +1,2 @@
-# JonatahnScriptInterpreter
-A interptreter for JonathanScript( JS) ;)
+# JonatahnScriptCompiler
+A compiler for JonathanScript( JS) ;)
