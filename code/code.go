@@ -1,6 +1,7 @@
 package code
 
 import (
+	"bytes"
 	"encoding/binary"
 	"fmt"
 )
@@ -14,7 +15,7 @@ const (
 
 type Definition struct {
 	Name          string
-	OperandWidths []int
+	OperandWidths []int //how many byte every operand use
 }
 
 var definitions = map[Opcode]*Definition{
@@ -32,6 +33,7 @@ func Lookup(op byte) (*Definition, error) {
 }
 
 // Make : use the op and operands to make instruction(byte array)
+// the first byte is Opcode (1 type)
 func Make(op Opcode, operands ...int) []byte {
 	def, ok := definitions[op]
 	if !ok {
@@ -55,8 +57,39 @@ func Make(op Opcode, operands ...int) []byte {
 	return instruction
 }
 
+func (ins Instructions) fmtInstruction(def *Definition, operands []int) string {
+	operandCount := len(def.OperandWidths)
+	if len(operands) != operandCount {
+		return fmt.Sprintf("ERROR: operand len %d does not match defined %d\n",
+			len(operands), operandCount)
+	}
+	switch operandCount {
+	case 1:
+		return fmt.Sprintf("%s %d", def.Name, operands[0])
+	}
+	return fmt.Sprintf("ERROR: unhandled operandCount for %s\n", def.Name)
+}
+
 func (ins Instructions) String() string {
-	return ""
+	var out bytes.Buffer
+	i := 0
+	for i < len(ins) {
+		def, err := Lookup(ins[i])
+		if err != nil {
+			_, err := fmt.Fprintf(&out, "ERROR: %s\n", err)
+			if err != nil {
+				return ""
+			}
+			continue
+		}
+		operands, read := ReadOperands(def, ins[i+1:])
+		_, err = fmt.Fprintf(&out, "%04d %s\n", i, ins.fmtInstruction(def, operands))
+		if err != nil {
+			return ""
+		}
+		i += 1 + read
+	}
+	return out.String()
 }
 
 func ReadOperands(def *Definition, ins Instructions) ([]int, int) {
