@@ -18,6 +18,7 @@ type Definition struct {
 	OperandWidths []int //how many byte every operand use
 }
 
+// store the state of all instructions info
 var definitions = map[Opcode]*Definition{
 	OpConstant: {
 		"OpConstant", []int{2}, // the constant operand stored in 2 byte
