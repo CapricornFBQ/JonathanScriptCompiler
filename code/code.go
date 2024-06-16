@@ -11,6 +11,7 @@ type Opcode byte
 
 const (
 	OpConstant Opcode = iota
+	OpAdd
 )
 
 type Definition struct {
@@ -20,9 +21,8 @@ type Definition struct {
 
 // store the state of all instructions info
 var definitions = map[Opcode]*Definition{
-	OpConstant: {
-		"OpConstant", []int{2}, // the constant operand stored in 2 byte
-	},
+	OpConstant: {"OpConstant", []int{2}}, // the constant has one operand,and stored in 2 byte
+	OpAdd:      {"OpAdd", []int{}},
 }
 
 func Lookup(op byte) (*Definition, error) {
@@ -65,6 +65,8 @@ func (ins Instructions) fmtInstruction(def *Definition, operands []int) string {
 			len(operands), operandCount)
 	}
 	switch operandCount {
+	case 0:
+		return def.Name
 	case 1:
 		return fmt.Sprintf("%s %d", def.Name, operands[0])
 	}
@@ -84,6 +86,7 @@ func (ins Instructions) String() string {
 			continue
 		}
 		operands, read := ReadOperands(def, ins[i+1:])
+		// the variable i is the index of byte in Instructions
 		_, err = fmt.Fprintf(&out, "%04d %s\n", i, ins.fmtInstruction(def, operands))
 		if err != nil {
 			return ""
