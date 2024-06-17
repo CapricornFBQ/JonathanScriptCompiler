@@ -8,8 +8,8 @@ import (
 )
 
 type Compiler struct {
-	instructions code.Instructions
-	constants    []object.Object //constant pool
+	instructions code.Instructions // the result instructions byte[] the compiler generated
+	constants    []object.Object   //constant pool
 }
 
 func NewCompiler() *Compiler {
