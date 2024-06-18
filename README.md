@@ -1,4 +1,4 @@
-# JonatahnScriptCompiler
+# JonathanScriptCompiler
 A compiler for JonathanScript( JS) ;)
 1. The Lexer translates JonathanScript into tokens.
 2. The Parser parses the tokens and generates the AST.

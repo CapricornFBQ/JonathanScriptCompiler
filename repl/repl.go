@@ -4,17 +4,16 @@ import (
 	"bufio"
 	"fmt"
 	"io"
-	"jonathan/evaluator"
+	"jonathan/compiler"
 	"jonathan/lexer"
-	"jonathan/object"
 	"jonathan/parser"
+	"jonathan/vm"
 )
 
 const PROMPT = ">>"
 
 func Start(in io.Reader, out io.Writer) {
 	scanner := bufio.NewScanner(in)
-	env := object.NewEnvironment() // the root env
 	for {
 		fmt.Printf(PROMPT)
 		scanned := scanner.Scan()
@@ -32,26 +31,32 @@ func Start(in io.Reader, out io.Writer) {
 			continue
 		}
 
-		evaluated := evaluator.Eval(program, env)
-		if evaluated != nil {
-			writeString, err := io.WriteString(out, evaluated.Inspect())
+		comp := compiler.NewCompiler()
+		err := comp.Compile(program)
+		if err != nil {
+			_, err := fmt.Fprintf(out, "Woops! Compilation failed:\n %s\n", err)
 			if err != nil {
-				fmt.Println("error writing string:", err)
 				return
 			}
-			if writeString != len(evaluated.Inspect()) {
-				fmt.Println("not all bytes written")
-				return
-			}
-			writeString, err = io.WriteString(out, "\n")
+			continue
+		}
+		machine := vm.NewVm(comp.Bytecode())
+		err = machine.Run()
+		if err != nil {
+			_, err := fmt.Fprintf(out, "Woops! Executing bytecode failed:\n %s\n", err)
 			if err != nil {
-				fmt.Println("error writing string:", err)
 				return
 			}
-			if writeString != len("\n") {
-				fmt.Println("not all bytes written")
-				return
-			}
+			continue
+		}
+		stackTop := machine.StackTop()
+		_, err = io.WriteString(out, stackTop.Inspect())
+		if err != nil {
+			return
+		}
+		_, err = io.WriteString(out, "\n")
+		if err != nil {
+			return
 		}
 	}
 }
