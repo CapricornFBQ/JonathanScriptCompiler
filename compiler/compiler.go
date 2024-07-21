@@ -58,6 +58,9 @@ func (c *Compiler) Compile(node ast.Node) error {
 		}
 		c.emit(code.OpGetGlobal, symbol.Index)
 	case *ast.LetStatement:
+		// Note: compile expression first. if the value is a integer. the previous instruction is a integer.
+		// the integer will be pushed into the stack in the vm. so, when the vm get the OpSetGlobal ,
+		// it will get the integer by pop the stack. and store the integer in the array at the index of symbol.index.
 		err := c.Compile(node.Value)
 		if err != nil {
 			return err
