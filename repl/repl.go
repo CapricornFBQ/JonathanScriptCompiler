@@ -6,6 +6,7 @@ import (
 	"io"
 	"jonathan/compiler"
 	"jonathan/lexer"
+	"jonathan/object"
 	"jonathan/parser"
 	"jonathan/vm"
 )
@@ -14,6 +15,9 @@ const PROMPT = ">>"
 
 func Start(in io.Reader, out io.Writer) {
 	scanner := bufio.NewScanner(in)
+	var constants []object.Object
+	globals := make([]object.Object, vm.GlobalsSize)
+	symbolTable := compiler.NewSymbolTable()
 	for {
 		fmt.Printf(PROMPT)
 		scanned := scanner.Scan()
@@ -31,7 +35,7 @@ func Start(in io.Reader, out io.Writer) {
 			continue
 		}
 
-		comp := compiler.NewCompiler()
+		comp := compiler.NewCompilerWithState(symbolTable, constants)
 		err := comp.Compile(program)
 		if err != nil {
 			_, err := fmt.Fprintf(out, "Woops! Compilation failed:\n %s\n", err)
@@ -40,7 +44,10 @@ func Start(in io.Reader, out io.Writer) {
 			}
 			continue
 		}
-		machine := vm.NewVm(comp.Bytecode())
+		code := comp.Bytecode()
+		constants = code.Constants // update the constants
+
+		machine := vm.NewVmWithGlobalsStore(code, globals)
 		err = machine.Run()
 		if err != nil {
 			_, err := fmt.Fprintf(out, "Woops! Executing bytecode failed:\n %s\n", err)

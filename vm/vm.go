@@ -33,6 +33,12 @@ func NewVm(bytecode *compiler.Bytecode) *VM {
 	}
 }
 
+func NewVmWithGlobalsStore(bytecode *compiler.Bytecode, s []object.Object) *VM {
+	vm := NewVm(bytecode)
+	vm.globals = s
+	return vm
+}
+
 func (vm *VM) StackTop() object.Object {
 	if vm.sp == 0 {
 		return nil
