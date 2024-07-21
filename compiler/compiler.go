@@ -15,15 +15,17 @@ type EmittedInstruction struct {
 
 type Compiler struct {
 	instructions        code.Instructions  // the result instructions byte[] the compiler generated
-	constants           []object.Object    //constant pool
+	constants           []object.Object    // constant pool
 	lastInstruction     EmittedInstruction // the last emitted instruction
 	previousInstruction EmittedInstruction // the one before last emitted instruction
+	symbolTable         *SymbolTable
 }
 
 func NewCompiler() *Compiler {
 	return &Compiler{
 		instructions: code.Instructions{},
 		constants:    []object.Object{},
+		symbolTable:  NewSymbolTable(),
 	}
 }
 func (c *Compiler) Compile(node ast.Node) error {
@@ -41,11 +43,18 @@ func (c *Compiler) Compile(node ast.Node) error {
 			return err
 		}
 		c.emit(code.OpPop)
+	case *ast.Identifier:
+		_, ok := c.symbolTable.Resolve(node.Value)
+		if !ok {
+			return fmt.Errorf("undefined variable %s", node.Value)
+		}
 	case *ast.LetStatement:
 		err := c.Compile(node.Value)
 		if err != nil {
 			return err
 		}
+		symbol := c.symbolTable.Define(node.Name.Value)
+		c.emit(code.OpSetGlobal, symbol.Index)
 	case *ast.IfExpression:
 		err := c.Compile(node.Condition)
 		if err != nil {
