@@ -44,10 +44,11 @@ func (c *Compiler) Compile(node ast.Node) error {
 		}
 		c.emit(code.OpPop)
 	case *ast.Identifier:
-		_, ok := c.symbolTable.Resolve(node.Value)
+		symbol, ok := c.symbolTable.Resolve(node.Value)
 		if !ok {
 			return fmt.Errorf("undefined variable %s", node.Value)
 		}
+		c.emit(code.OpGetGlobal, symbol.Index)
 	case *ast.LetStatement:
 		err := c.Compile(node.Value)
 		if err != nil {
