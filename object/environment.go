@@ -1,5 +1,7 @@
 package object
 
+// store identifier、function and so on
+
 func NewEnclosedEnvironment(outer *Environment) *Environment {
 	env := NewEnvironment()
 	env.outer = outer

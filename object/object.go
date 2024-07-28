@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"hash/fnv"
 	"jonathan/ast"
+	"jonathan/code"
 	"strings"
 )
 
@@ -12,16 +13,17 @@ type Type string
 type BuiltinFunction func(args ...Object) Object
 
 const (
-	IntegerObj     = "INTEGER"
-	BooleanObj     = "BOOLEAN"
-	NullObj        = "NULL"
-	ReturnValueObj = "RETURN_VALUE"
-	ErrorObj       = "ERROR"
-	FunctionObj    = "FUNCTION"
-	StringObj      = "STRING"
-	BuiltinObj     = "BUILTIN"
-	ArrayObj       = "ARRAY"
-	HashObj        = "HASH"
+	IntegerObj          = "INTEGER"
+	BooleanObj          = "BOOLEAN"
+	NullObj             = "NULL"
+	ReturnValueObj      = "RETURN_VALUE"
+	ErrorObj            = "ERROR"
+	FunctionObj         = "FUNCTION" // in the let statement,we think of functions as variables
+	StringObj           = "STRING"
+	BuiltinObj          = "BUILTIN"
+	ArrayObj            = "ARRAY"
+	HashObj             = "HASH"
+	CompiledFunctionObj = "COMPILED_FUNCTION_OBJ"
 )
 
 type Object interface {
@@ -167,4 +169,15 @@ func (h *Hash) Inspect() string {
 
 type Hashable interface {
 	HashKey() HashKey
+}
+
+type CompiledFunction struct {
+	Instructions code.Instructions // one function include many instructions
+}
+
+func (cf *CompiledFunction) Type() Type {
+	return CompiledFunctionObj
+}
+func (cf *CompiledFunction) Inspect() string {
+	return fmt.Sprintf("CompiledFunction[%p]", cf)
 }
