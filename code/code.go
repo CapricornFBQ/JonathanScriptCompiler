@@ -36,6 +36,9 @@ const (
 	OpArray
 	OpHash
 	OpIndex
+	OpCall
+	OpReturnValue
+	OpReturn
 )
 
 type Definition struct {
@@ -45,7 +48,8 @@ type Definition struct {
 
 // store the state of all instructions info
 var definitions = map[Opcode]*Definition{
-	OpConstant:      {"OpConstant", []int{2}}, // the constant has one operand,and stored in 2 byte
+	OpConstant: {"OpConstant", []int{2}}, // the constant has one operand,and stored in 2 byte,
+	//the array with element "2", didn't use in other code logic
 	OpAdd:           {"OpAdd", []int{}},
 	OpPop:           {"OpPop", []int{}},
 	OpSub:           {"OpSub", []int{}},
@@ -66,6 +70,9 @@ var definitions = map[Opcode]*Definition{
 	OpArray:         {"OpArray", []int{2}}, // operand：elements number
 	OpHash:          {"OpHash", []int{2}},  // operand：number of key+ number of value
 	OpIndex:         {"OpIndex", []int{}},
+	OpCall:          {"OpCall", []int{}},
+	OpReturnValue:   {"OpReturnValue", []int{}},
+	OpReturn:        {"OpReturn", []int{}},
 }
 
 func Lookup(op byte) (*Definition, error) {

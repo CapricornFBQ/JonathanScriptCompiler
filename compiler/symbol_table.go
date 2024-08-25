@@ -6,10 +6,11 @@ const (
 	GlobalScope SymbolScope = "GLOBAL"
 )
 
+// trace the scope of symbol(variable or function literal especially)
 type Symbol struct {
-	Name  string
-	Scope SymbolScope
-	Index int
+	Name  string      // symbol name
+	Scope SymbolScope // symbol scope
+	Index int         // symbol index
 }
 type SymbolTable struct {
 	store          map[string]Symbol
