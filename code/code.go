@@ -49,7 +49,7 @@ type Definition struct {
 // store the state of all instructions info
 var definitions = map[Opcode]*Definition{
 	OpConstant: {"OpConstant", []int{2}}, // the constant has one operand,and stored in 2 byte,
-	//the array with element "2", didn't use in other code logic
+	//the array with element "2", we use it in Make func to ensure the number of byte
 	OpAdd:           {"OpAdd", []int{}},
 	OpPop:           {"OpPop", []int{}},
 	OpSub:           {"OpSub", []int{}},
