@@ -123,6 +123,7 @@ func (ins Instructions) fmtInstruction(def *Definition, operands []int) string {
 	return fmt.Sprintf("ERROR: unhandled operandCount for %s\n", def.Name)
 }
 
+// print instructions
 func (ins Instructions) String() string {
 	var out bytes.Buffer
 	i := 0

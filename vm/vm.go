@@ -16,7 +16,7 @@ var False = &object.Boolean{Value: false}
 var Null = &object.Null{}
 
 type VM struct {
-	constants []object.Object
+	constants []object.Object //The value of number or the name of function
 	//instructions code.Instructions
 	stack       []object.Object
 	sp          int // Always points to the next value. Top of stack is stack[sp-1]
@@ -140,6 +140,21 @@ func (vm *VM) Run() error {
 		case code.OpJump:
 			pos := int(code.ReadUint16(ins[ip+1:]))
 			vm.currentFrame().ip = pos - 1 // change the next instructions
+		case code.OpCall:
+			fn, ok := vm.stack[vm.sp-1].(*object.CompiledFunction)
+			if !ok {
+				return fmt.Errorf("calling non-function")
+			}
+			frame := NewFrame(fn)
+			vm.pushFrame(frame)
+		case code.OpReturnValue:
+			returnValue := vm.pop()
+			vm.popFrame()
+			vm.pop()
+			err := vm.push(returnValue)
+			if err != nil {
+				return err
+			}
 		case code.OpBang:
 			err := vm.executeBangOperator()
 			if err != nil {

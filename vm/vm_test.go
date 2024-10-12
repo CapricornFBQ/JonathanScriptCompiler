@@ -272,3 +272,47 @@ func TestIndexExpressions(t *testing.T) {
 	}
 	runVmTests(t, tests)
 }
+
+func TestCallingFunctionWithoutArguments(t *testing.T) {
+	tests := []vmTestCase{
+		{
+			input: `
+				let fivePlusTen = fn() {5 + 10;};
+				fivePlusTen();
+				let one = fn() {1;};
+				let two = fn() {2;};
+				one() + two()
+			`,
+			expected: 3,
+		},
+		{
+			input: `
+				let a = fn(){1};
+				let b = fn(){a() + 1 };
+				let c = fn(){b() + 1 };
+				c();
+			`,
+			expected: 3,
+		},
+	}
+	runVmTests(t, tests)
+}
+
+func TestMultiLineAst(t *testing.T) {
+	tests := []vmTestCase{
+		{
+			input: `
+				let fivePlusTen = fn() {5 + 10;};
+				fivePlusTen();
+				let forPlusFive = fn() {4 + 5;};
+				forPlusFive();
+				if (true) { 10; } else { 20; }
+				
+				let onePlusTwo = fn() { return 1 + 2;};
+				onePlusTwo();
+			`,
+			expected: 3,
+		},
+	}
+	runVmTests(t, tests)
+}

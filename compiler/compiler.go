@@ -5,6 +5,7 @@ import (
 	"jonathan/ast"
 	"jonathan/code"
 	"jonathan/object"
+	"log"
 	"sort"
 )
 
@@ -256,6 +257,7 @@ func (c *Compiler) Compile(node ast.Node) error {
 		c.emit(code.OpCall)
 
 	}
+	c.PrintStatements()
 	return nil
 }
 
@@ -365,4 +367,26 @@ func (c *Compiler) leaveScope() code.Instructions {
 	c.scopes = c.scopes[:len(c.scopes)-1]
 	c.scopeIndex--
 	return instructions
+}
+
+func (c *Compiler) PrintStatements() {
+	fmt.Println("------------compiler status:------------")
+	log.Printf("\nconstants size: %d ", len(c.constants))
+	fmt.Println("compiler constants:")
+	for i := 0; i < len(c.constants); i++ {
+		fmt.Printf("obj: %v ,", c.constants[i])
+		fmt.Printf("str: %s ,", c.constants[i])
+		fmt.Printf("hex: %x ,", c.constants[i])
+	}
+	log.Printf("\nconstants symbolTable: %d ", c.symbolTable.numDefinitions)
+	fmt.Printf("\ncompiler symbolTable: ")
+	for key, value := range c.symbolTable.store {
+		fmt.Printf("\nkey:%s=>Name:%s, Scope: %s, Index: %d ", key, value.Name, value.Scope, value.Index)
+	}
+	fmt.Println("compiler scope: ")
+	log.Printf("\ncurrent scope index: %d ", c.scopeIndex)
+	for i := 0; i < len(c.scopes); i++ {
+		fmt.Printf("compiler scope num: %d ", i)
+		fmt.Printf("compiler instructions: %s;;;;", c.scopes[i].instructions)
+	}
 }
