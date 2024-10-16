@@ -73,7 +73,11 @@ func (c *Compiler) Compile(node ast.Node) error {
 		if !ok {
 			return fmt.Errorf("undefined variable %s", node.Value)
 		}
-		c.emit(code.OpGetGlobal, symbol.Index)
+		if symbol.Scope == GlobalScope {
+			c.emit(code.OpGetGlobal, symbol.Index)
+		} else {
+			c.emit(code.OpGetLocal, symbol.Index)
+		}
 	case *ast.LetStatement:
 		// Note: compile expression first. if the value is a integer. the previous instruction is a integer.
 		// the integer will be pushed into the stack in the vm. so, when the vm get the OpSetGlobal ,
@@ -83,7 +87,11 @@ func (c *Compiler) Compile(node ast.Node) error {
 			return err
 		}
 		symbol := c.symbolTable.Define(node.Name.Value)
-		c.emit(code.OpSetGlobal, symbol.Index)
+		if symbol.Scope == GlobalScope {
+			c.emit(code.OpSetGlobal, symbol.Index)
+		} else {
+			c.emit(code.OpSetLocal, symbol.Index)
+		}
 	case *ast.IfExpression:
 		err := c.Compile(node.Condition)
 		if err != nil {
@@ -359,6 +367,7 @@ func (c *Compiler) enterScope() {
 	}
 	c.scopes = append(c.scopes, scope)
 	c.scopeIndex++
+	c.symbolTable = NewEnclosedSymbolTable(c.symbolTable) // new symbol table of scope
 }
 
 // remove the last instructions array
@@ -366,6 +375,7 @@ func (c *Compiler) leaveScope() code.Instructions {
 	instructions := c.currentInstructions()
 	c.scopes = c.scopes[:len(c.scopes)-1]
 	c.scopeIndex--
+	c.symbolTable = c.symbolTable.Outer // come back to the outer symbol table of scope
 	return instructions
 }
 
