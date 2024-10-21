@@ -141,14 +141,13 @@ func (vm *VM) Run() error {
 			pos := int(code.ReadUint16(ins[ip+1:]))
 			vm.currentFrame().ip = pos - 1 // change the next instructions
 		case code.OpCall:
+			numArgs := code.ReadUint8(ins[ip+1:])
 			vm.currentFrame().ip += 1
-			fn, ok := vm.stack[vm.sp-1].(*object.CompiledFunction)
-			if !ok {
-				return fmt.Errorf("calling non-function")
+			err := vm.callFunction(int(numArgs))
+			if err != nil {
+				return err
 			}
-			frame := NewFrame(fn, vm.sp) // Store the sp status in the function frame
-			vm.pushFrame(frame)
-			vm.sp = frame.basePointer + fn.NumLocals
+
 		case code.OpSetLocal:
 			localIndex := code.ReadUint8(ins[ip+1:]) //local index is the offset relative to the basepointer
 			vm.currentFrame().ip += 1
@@ -200,6 +199,17 @@ func (vm *VM) Run() error {
 			return nil
 		}
 	}
+	return nil
+}
+
+func (vm *VM) callFunction(numArgs int) error {
+	fn, ok := vm.stack[vm.sp-1-int(numArgs)].(*object.CompiledFunction) // the arguments are above the function name in the stack
+	if !ok {
+		return fmt.Errorf("calling non-function")
+	}
+	frame := NewFrame(fn, vm.sp-numArgs) // Store the sp status in the function frame，the second argument is the base pointer
+	vm.pushFrame(frame)
+	vm.sp = frame.basePointer + fn.NumLocals
 	return nil
 }
 
