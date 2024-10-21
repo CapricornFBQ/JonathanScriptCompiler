@@ -207,6 +207,9 @@ func (vm *VM) callFunction(numArgs int) error {
 	if !ok {
 		return fmt.Errorf("calling non-function")
 	}
+	if numArgs != fn.NumParameters { // check the functionLiteral argumnents number and the call arguments number
+		return fmt.Errorf("wrong number of arguments: want=%d, got=%d", fn.NumParameters, numArgs)
+	}
 	frame := NewFrame(fn, vm.sp-numArgs) // Store the sp status in the function frame，the second argument is the base pointer
 	vm.pushFrame(frame)
 	vm.sp = frame.basePointer + fn.NumLocals
