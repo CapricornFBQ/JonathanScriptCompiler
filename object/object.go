@@ -173,6 +173,7 @@ type Hashable interface {
 
 type CompiledFunction struct {
 	Instructions code.Instructions // one function include many instructions
+	NumLocals    int
 }
 
 func (cf *CompiledFunction) Type() Type {
