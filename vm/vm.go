@@ -141,6 +141,7 @@ func (vm *VM) Run() error {
 			pos := int(code.ReadUint16(ins[ip+1:]))
 			vm.currentFrame().ip = pos - 1 // change the next instructions
 		case code.OpCall:
+			vm.currentFrame().ip += 1
 			fn, ok := vm.stack[vm.sp-1].(*object.CompiledFunction)
 			if !ok {
 				return fmt.Errorf("calling non-function")

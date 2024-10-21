@@ -73,7 +73,7 @@ var definitions = map[Opcode]*Definition{
 	OpArray:         {"OpArray", []int{2}}, // operand：elements number
 	OpHash:          {"OpHash", []int{2}},  // operand：number of key+ number of value
 	OpIndex:         {"OpIndex", []int{}},
-	OpCall:          {"OpCall", []int{}},
+	OpCall:          {"OpCall", []int{1}}, // operand: hold the number of arguments
 	OpReturnValue:   {"OpReturnValue", []int{}},
 	OpReturn:        {"OpReturn", []int{}},
 
