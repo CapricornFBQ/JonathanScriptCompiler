@@ -250,15 +250,19 @@ func (c *Compiler) Compile(node ast.Node) error {
 		if !c.lastInstructionIs(code.OpReturnValue) {
 			c.emit(code.OpReturn)
 		}
+		freeSymbols := c.symbolTable.FreeSymbols
 		numLocals := c.symbolTable.numDefinitions
 		instructions := c.leaveScope()
+		for _, s := range freeSymbols { // emit free symbol before emit closure
+			c.loadSymbol(s)
+		}
 		compiledFn := &object.CompiledFunction{
 			Instructions:  instructions,
 			NumLocals:     numLocals,
 			NumParameters: len(node.Parameters),
 		}
 		fnIndex := c.addConstant(compiledFn)
-		c.emit(code.OpClosure, fnIndex, 0)
+		c.emit(code.OpClosure, fnIndex, len(freeSymbols))
 
 	case *ast.ReturnStatement:
 		err := c.Compile(node.ReturnValue)
@@ -402,6 +406,8 @@ func (c *Compiler) loadSymbol(s Symbol) {
 		c.emit(code.OpGetLocal, s.Index)
 	case BuiltinScope:
 		c.emit(code.OpGetBuiltin, s.Index)
+	case FreeScope:
+		c.emit(code.OpGetFree, s.Index)
 	default:
 	}
 }
@@ -412,8 +418,8 @@ func (c *Compiler) PrintStatements() {
 	fmt.Println("compiler constants:")
 	for i := 0; i < len(c.constants); i++ {
 		fmt.Printf("obj: %v ,", c.constants[i])
-		fmt.Printf("str: %s ,", c.constants[i])
-		fmt.Printf("hex: %x ,", c.constants[i])
+		// fmt.Printf("str: %s ,", c.constants[i])
+		// fmt.Printf("hex: %x ,", c.constants[i])
 	}
 	log.Printf("\nconstants symbolTable: %d ", c.symbolTable.numDefinitions)
 	fmt.Printf("\ncompiler symbolTable: ")
