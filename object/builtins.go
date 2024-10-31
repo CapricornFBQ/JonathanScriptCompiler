@@ -2,6 +2,8 @@ package object
 
 import "fmt"
 
+// Builtins is a part of Object. it's used in vm directly.
+// but we have to store the builtin func name and the index of builtin func in the compiler symbol table.
 var Builtins = []struct {
 	Name    string
 	Builtin *Builtin
