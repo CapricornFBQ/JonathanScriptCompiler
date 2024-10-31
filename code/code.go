@@ -156,7 +156,7 @@ func (ins Instructions) String() string {
 		}
 		operands, read := ReadOperands(def, ins[i+1:])
 		// the variable i is the index of byte in Instructions
-		_, err = fmt.Fprintf(&out, "%04d %s\n", i, ins.fmtInstruction(def, operands))
+		_, err = fmt.Fprintf(&out, "%04d %s ", i, ins.fmtInstruction(def, operands))
 		if err != nil {
 			return ""
 		}

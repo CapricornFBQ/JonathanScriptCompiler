@@ -28,7 +28,7 @@ func NewSymbolTable() *SymbolTable {
 	return &SymbolTable{store: s, FreeSymbols: free}
 }
 
-func (s *SymbolTable) Define(name string) Symbol {
+func (s *SymbolTable) DefineSymbol(name string) Symbol {
 	symbol := Symbol{Name: name, Index: s.numDefinitions, Scope: GlobalScope}
 	if s.Outer == nil {
 		symbol.Scope = GlobalScope
@@ -53,6 +53,8 @@ func (s *SymbolTable) Resolve(name string) (Symbol, bool) {
 		if !ok {
 			return obj, ok
 		}
+		// if the reuslut ok is true, it illustrate we find the symbol in outer scope. it's not global or builtin varibles
+		// so it's defined in the father-scope. it is free variable
 		if obj.Scope == GlobalScope || obj.Scope == BuiltinScope {
 			return obj, ok
 		}

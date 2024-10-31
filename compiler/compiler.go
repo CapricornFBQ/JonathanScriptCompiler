@@ -5,7 +5,6 @@ import (
 	"jonathan/ast"
 	"jonathan/code"
 	"jonathan/object"
-	"log"
 	"sort"
 )
 
@@ -86,7 +85,7 @@ func (c *Compiler) Compile(node ast.Node) error {
 		if err != nil {
 			return err
 		}
-		symbol := c.symbolTable.Define(node.Name.Value)
+		symbol := c.symbolTable.DefineSymbol(node.Name.Value)
 		if symbol.Scope == GlobalScope {
 			c.emit(code.OpSetGlobal, symbol.Index)
 		} else {
@@ -238,7 +237,7 @@ func (c *Compiler) Compile(node ast.Node) error {
 	case *ast.FunctionLiteral:
 		c.enterScope()
 		for _, p := range node.Parameters {
-			c.symbolTable.Define(p.Value)
+			c.symbolTable.DefineSymbol(p.Value)
 		}
 		err := c.Compile(node.Body)
 		if err != nil {
@@ -413,23 +412,23 @@ func (c *Compiler) loadSymbol(s Symbol) {
 }
 
 func (c *Compiler) PrintStatements() {
-	fmt.Println("------------compiler status:------------")
-	log.Printf("\nconstants size: %d ", len(c.constants))
-	fmt.Println("compiler constants:")
+	fmt.Printf("\n------------------------compiler status:------------------------")
+	fmt.Printf("\ncompiler constants size: %d ", len(c.constants))
+	fmt.Printf("\ncompiler constants:")
 	for i := 0; i < len(c.constants); i++ {
 		fmt.Printf("obj: %v ,", c.constants[i])
 		// fmt.Printf("str: %s ,", c.constants[i])
 		// fmt.Printf("hex: %x ,", c.constants[i])
 	}
-	log.Printf("\nconstants symbolTable: %d ", c.symbolTable.numDefinitions)
+	fmt.Printf("\ncompiler symbolTable size: %d ", c.symbolTable.numDefinitions)
 	fmt.Printf("\ncompiler symbolTable: ")
 	for key, value := range c.symbolTable.store {
-		fmt.Printf("\nkey:%s=>Name:%s, Scope: %s, Index: %d ", key, value.Name, value.Scope, value.Index)
+		fmt.Printf("\nkey: %s => { Name: %s, Scope: %s, Index: %d }", key, value.Name, value.Scope, value.Index)
 	}
-	fmt.Println("compiler scope: ")
-	log.Printf("\ncurrent scope index: %d ", c.scopeIndex)
+	fmt.Printf("\ncompiler scope: ")
+	fmt.Printf("\ncurrent scope index: %d ", c.scopeIndex)
 	for i := 0; i < len(c.scopes); i++ {
 		fmt.Printf("compiler scope num: %d ", i)
-		fmt.Printf("compiler instructions: %s;;;;", c.scopes[i].instructions)
+		fmt.Printf("compiler instructions: %s ", c.scopes[i].instructions)
 	}
 }
