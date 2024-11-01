@@ -16,7 +16,7 @@ var False = &object.Boolean{Value: false}
 var Null = &object.Null{}
 
 type VM struct {
-	constants []object.Object //The value of number or the name of function
+	constants []object.Object //The value of number \ string or the function instruction
 	//instructions code.Instructions
 	stack       []object.Object
 	sp          int // Always points to the next value. Top of stack is stack[sp-1]

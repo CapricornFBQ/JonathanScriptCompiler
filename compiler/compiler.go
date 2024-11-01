@@ -23,7 +23,7 @@ type CompilationScope struct {
 }
 
 type Compiler struct {
-	constants   []object.Object // constant pool
+	constants   []object.Object // constant pool include integer\string\functionLiteral
 	symbolTable *SymbolTable    // trace the scope of symbol
 	// it's convenient control of scopes when we decode the instruction
 	scopes     []CompilationScope // trace the instruction emitted. the instructions is a two-dimensional instructions arrays
