@@ -424,8 +424,18 @@ func (c *Compiler) PrintStatements() {
 	}
 	fmt.Printf("\ncompiler symbolTable size: %d ", c.symbolTable.numDefinitions)
 	fmt.Printf("\ncompiler symbolTable: ")
-	for key, value := range c.symbolTable.store {
-		fmt.Printf("\nkey: %s => { Name: %s, Scope: %s, Index: %d }", key, value.Name, value.Scope, value.Index)
+	symbolTable := c.symbolTable
+	for {
+		for key, value := range symbolTable.store {
+			fmt.Printf("\nkey: %s => { Name: %s, Scope: %s, Index: %d }", key, value.Name, value.Scope, value.Index)
+		}
+		outer := symbolTable.Outer
+		if outer == nil {
+			break
+		} else {
+			fmt.Printf("\nouter scope\n")
+			symbolTable = outer
+		}
 	}
 	fmt.Printf("\ncompiler scope: ")
 	fmt.Printf("\ncurrent scope index: %d ", c.scopeIndex)

@@ -47,6 +47,7 @@ const (
 
 	OpClosure
 	OpGetFree
+	OpCurrentClosure
 )
 
 type Definition struct {
@@ -82,11 +83,12 @@ var definitions = map[Opcode]*Definition{
 	OpReturnValue:   {"OpReturnValue", []int{}},
 	OpReturn:        {"OpReturn", []int{}},
 
-	OpGetLocal:   {"OpGetLocal", []int{1}},
-	OpSetLocal:   {"OpSetLocal", []int{1}},
-	OpGetBuiltin: {"OpGetBuiltin", []int{1}},
-	OpClosure:    {"OpClosure", []int{2, 1}}, // the first operand is the constant index,the second operand specifies the number of free variables
-	OpGetFree:    {"OpGetFree", []int{1}},    // operand: the index in closure object Free
+	OpGetLocal:       {"OpGetLocal", []int{1}},
+	OpSetLocal:       {"OpSetLocal", []int{1}},
+	OpGetBuiltin:     {"OpGetBuiltin", []int{1}},
+	OpClosure:        {"OpClosure", []int{2, 1}}, // the first operand is the constant index,the second operand specifies the number of free variables
+	OpGetFree:        {"OpGetFree", []int{1}},    // operand: the index in closure object Free
+	OpCurrentClosure: {"OpCurrentClosure", []int{}},
 }
 
 func Lookup(op byte) (*Definition, error) {
