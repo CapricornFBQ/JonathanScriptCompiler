@@ -172,6 +172,12 @@ func (vm *VM) Run() error {
 			if err != nil {
 				return err
 			}
+		case code.OpCurrentClosure:
+			currentClosure := vm.currentFrame().cl
+			err := vm.push(currentClosure)
+			if err != nil {
+				return err
+			}
 		case code.OpSetLocal:
 			localIndex := code.ReadUint8(ins[ip+1:]) //local index is the offset relative to the basepointer
 			vm.currentFrame().ip += 1
