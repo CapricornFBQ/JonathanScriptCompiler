@@ -20,13 +20,13 @@ Execution process：
   </tr>
   <tr>
     <td>source</td>
-    <td>--------></td>
+    <td>----></td>
     <td>token</td>
-    <td>--------></td>
+    <td>-----></td>
     <td>AST</td>
-    <td>--------></td>
+    <td>-------></td>
     <td>code (Instructions []byte)</td>
-    <td>--------></td>
+    <td>--></td>
     <td>result</td>
   </tr>
 </table>
